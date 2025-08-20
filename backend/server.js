@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
-const app = require("./api/app");
+const app = require("./api/index");
 const config = require("./src/config/config"); // Assuming you have a config file
 const logger = require("./src/config/logger"); // Assuming you use a logger utility
 
 let server;
 mongoose.connect(config.mongoose.url).then(() => {
-  logger.info('Connected to MongoDB');
+  logger.info("Connected to MongoDB");
   server = app.listen(config.port, () => {
     logger.info(`Listening to port ${config.port}`);
   });
@@ -14,7 +14,7 @@ mongoose.connect(config.mongoose.url).then(() => {
 const exitHandler = () => {
   if (server) {
     server.close(() => {
-      logger.info('Server closed');
+      logger.info("Server closed");
       process.exit(1);
     });
   } else {
@@ -22,17 +22,16 @@ const exitHandler = () => {
   }
 };
 
-
 const unexpectedErrorHandler = (error) => {
   logger.error(error);
   exitHandler();
 };
 
-process.on('uncaughtException', unexpectedErrorHandler);
-process.on('unhandledRejection', unexpectedErrorHandler);
+process.on("uncaughtException", unexpectedErrorHandler);
+process.on("unhandledRejection", unexpectedErrorHandler);
 
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM received');
+process.on("SIGTERM", () => {
+  logger.info("SIGTERM received");
   if (server) {
     server.close();
   }
