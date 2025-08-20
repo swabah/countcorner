@@ -15,12 +15,14 @@ const connectToDb = async () => {
   }
 };
 
-module.exports.handler = serverless(async (req, res) => {
+const handler = async (req, res) => {
   try {
     await connectToDb();
-    app(req, res);
+    return app(req, res);
   } catch (error) {
-    console.error("Error in handler:", error);
+    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-});
+};
+
+module.exports = serverless(handler);
