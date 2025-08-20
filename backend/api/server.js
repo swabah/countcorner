@@ -1,7 +1,9 @@
 const app = require("./app");
+const dotenv = require("dotenv");
 const serverless = require("serverless-http");
 const mongoose = require("mongoose");
 
+dotenv.config();
 const MONGO_URI = process.env.MONGO_URI;
 
 let isConnected = false;

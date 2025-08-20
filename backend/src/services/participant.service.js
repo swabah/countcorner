@@ -19,8 +19,8 @@ const getAllParticipants = async () => {
   return participates;
 };
 const getParticipantById = async (id) => {
-  console.log(id);
-  await participantModel.findById(id);
+  const data = await participantModel.findById(id);
+  return data;
 };
 const createParticipant = async (data) => {
   const unique = await isNameUnique(data.name, data.campaignId);
