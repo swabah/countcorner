@@ -2,6 +2,7 @@ const express = require("express");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const cors = require("cors");
+const { notFound, errorHandler } = require("./src/middleware/error");
 
 const api = require("./api/index");
 
@@ -20,7 +21,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use(middlewares.notFound);
-app.use(middlewares.errorHandler);
+app.use(notFound);
+app.use(errorHandler);
 
 module.exports = app;

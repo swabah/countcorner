@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const app = require("./api/index");
+const app = require("./app");
 const config = require("./src/config/config"); // Assuming you have a config file
 const logger = require("./src/config/logger"); // Assuming you use a logger utility
 
