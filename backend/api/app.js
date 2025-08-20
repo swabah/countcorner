@@ -5,7 +5,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const compression = require("compression");
 const cors = require("cors");
 const httpStatus = require("http-status");
-const ApiError = require("../src/utils/ApiError");
+const ApiError = require('../src/utils/ApiError');
 const { errorConverter, errorHandler } = require("../src/middleware/error");
 
 const campaignRoutes = require("../src/routes/campaign.route");
