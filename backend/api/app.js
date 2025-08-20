@@ -5,8 +5,8 @@ const mongoSanitize = require("express-mongo-sanitize");
 const compression = require("compression");
 const cors = require("cors");
 const httpStatus = require("http-status");
-const logger = require("../src/config/logger");
 const ApiError = require("../src/utils/ApiError");
+const { errorConverter } = require("../src/middleware/error");
 
 const campaignRoutes = require("../src/routes/campaign.route");
 const participantRoutes = require("../src/routes/participant.route");
@@ -45,5 +45,8 @@ app.use((req, res, next) => {
 
 // convert error to ApiError, if needed
 app.use(errorConverter);
+
+// handle error
+app.use(errorHandler);
 
 module.exports = app;
