@@ -28,13 +28,10 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const handler = async (req, res) => {
-  try {
-    await connectToDb();
-    return app(req, res);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
+  const { name = "World" } = req.query;
+  return res.json({
+    message: `Hello ${name}!`,
+  });
 };
 
 module.exports = serverless(handler);
