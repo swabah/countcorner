@@ -1,0 +1,33 @@
+# Node.js dependencies
+/node_modules/
+# Optional npm cache directory
+/.npm
+
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids/*.pid
+pids/*.seed
+
+# Optional REPL history
+.node_repl_history
+
+# Environment variables files
+.env
+
+# Coverage directories
+/coverage/
+/.nyc_output/
+
+# IDE files
+.vscode/
+/.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+.vercel
+.env*.local
