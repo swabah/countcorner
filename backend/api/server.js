@@ -1,5 +1,6 @@
 require("dotenv").config();
 const app = require("./app");
+const serverless = require("serverless-http");
 const mongoose = require("mongoose");
 
 const MONGO_URI = process.env.MONGO_URI;
