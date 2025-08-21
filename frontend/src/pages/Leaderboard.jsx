@@ -32,8 +32,12 @@ const Leaderboard = () => {
     );
   }
 
+  const filteredParticipants = (leaderboard?.data || []).filter(
+    (p) => p.countTotal && p.countTotal > 0
+  );
+
   // Sort participants by countTotal DESCending
-  const sortedParticipants = [...(leaderboard?.data || [])].sort(
+  const sortedParticipants = [...filteredParticipants].sort(
     (a, b) => b.countTotal - a.countTotal
   );
 
@@ -125,52 +129,55 @@ const Leaderboard = () => {
         </div>
 
         {/* Remaining Participants */}
-        <IslamicCard gradient>
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">
-              Complete Rankings
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {rest.map((participant, idx) => {
-                // Overall rank = 3 + idx + 1
-                const rank = 3 + idx + 1;
-                return (
-                  <div
-                    key={participant.id || participant._id}
-                    className={`flex items-center justify-between p-4 rounded-lg transition-all duration-300 hover:shadow-peaceful ${
-                      rank <= 3
-                        ? "bg-gradient-primary/10 border border-primary/20"
-                        : "bg-secondary hover:bg-secondary/80"
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2 min-w-[60px]">
-                        {getRankIcon(rank)}
-                        <span className="font-bold text-lg">#{rank}</span>
+        {rest.length && (
+          <IslamicCard gradient>
+            <CardHeader>
+              <CardTitle className="text-2xl text-center">
+                Complete Rankings
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {rest.map((participant, idx) => {
+                  // Overall rank = 3 + idx + 1
+                  const rank = 3 + idx + 1;
+                  return (
+                    <div
+                      key={participant.id || participant._id}
+                      className={`flex items-center justify-between p-4 rounded-lg transition-all duration-300 hover:shadow-peaceful ${
+                        rank <= 3
+                          ? "bg-gradient-primary/10 border border-primary/20"
+                          : "bg-secondary hover:bg-secondary/80"
+                      }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 min-w-[60px]">
+                          {getRankIcon(rank)}
+                          <span className="font-bold text-lg">#{rank}</span>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg">
+                            {participant.name}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            Avg: {Math.round(participant.countTotal / 30)} per
+                            day
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-lg">
-                          {participant.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Avg: {Math.round(participant.countTotal / 30)} per day
-                        </p>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-primary">
+                          {participant.countTotal}
+                        </div>
+                        <p className="text-sm text-muted-foreground">Salawat</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-primary">
-                        {participant.countTotal}
-                      </div>
-                      <p className="text-sm text-muted-foreground">Salawat</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </IslamicCard>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </IslamicCard>
+        )}
 
         <div className="mt-8 text-center">
           <IslamicCard>
