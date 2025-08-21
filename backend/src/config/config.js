@@ -14,7 +14,7 @@ const envVarsSchema = Joi.object()
   })
   .unknown();
 
-const { value: envVars, error } = envVarsSchema
+const { value: envVars } = envVarsSchema
   .prefs({ errors: { label: "key" } })
   .validate(process.env);
 
@@ -23,9 +23,5 @@ module.exports = {
   port: envVars.PORT,
   mongoose: {
     url: envVars.MONGODB_URL,
-    options: {
-      useNewUrlParser: true,
-      retryWrites: false,
-    },
   },
 };

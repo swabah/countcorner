@@ -1,16 +1,21 @@
-const mongoose = require("mongoose");
 const app = require("./app");
 const config = require("./src/config/config");
+const connectDB = require("./src/config/db");
 const logger = require("./src/config/logger");
 
-let server;
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(config.port, () => {
+      logger.info(`🚀 Server running at http://localhost:${config.port}`);
+    });
+  } catch (err) {
+    logger.error("❌ Failed to start server:", err);
+    process.exit(1);
+  }
+};
 
-mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
-  logger.info("✅ Connected to MongoDB");
-  server = app.listen(config.port, () => {
-    logger.info(`🚀 Server running on port ${config.port}`);
-  });
-});
+startServer();
 
 const exitHandler = () => {
   if (server) {
