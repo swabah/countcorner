@@ -1,4 +1,5 @@
 const Campaign = require("../models/campaign.model");
+const Participant = require("../models/participant.model");
 
 const getAllCampaigns = () => {
   return Campaign.find().populate({
@@ -25,8 +26,9 @@ const updateCampaign = async (id, data) => {
   return newData;
 };
 
-const deleteCampaign = (id) => {
-  return Campaign.findByIdAndDelete(id);
+const deleteCampaign = async (id) => {
+  await Campaign.findByIdAndDelete(id);
+  await Participant.deleteMany({ lesson: lessonId });
 };
 
 module.exports = {

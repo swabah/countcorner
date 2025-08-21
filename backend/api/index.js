@@ -1,7 +1,3 @@
 const app = require("../app");
-const serverless = require("serverless-http");
 
-module.exports = (req, res) => {
-  const handler = serverless(app);
-  return handler(req, res);
-};
+module.exports = (req, res) => app(req, res);

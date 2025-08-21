@@ -2,8 +2,10 @@ const express = require("express");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const cors = require("cors");
+const config = require("./src/config/config");
 const { errorHandler } = require("./src/middleware/error");
 const apiRoutes = require("./src/routes/index");
+const { Limiter } = require("./src/middleware/rateLimiter");
 
 const app = express();
 
@@ -17,6 +19,11 @@ app.use("/", apiRoutes);
 app.get("/", (req, res) => {
   res.json({ message: "🦄🌈✨ API Running ✨🌈🦄" });
 });
+
+// limit repeated failed requests to auth endpoints
+if (config.env === "production") {
+  app.use("/v1/auth", Limiter);
+}
 
 app.use(errorHandler);
 

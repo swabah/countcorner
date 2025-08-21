@@ -15,7 +15,7 @@ async function isNameUnique(name, campaignId) {
 }
 
 const getAllParticipants = async () => {
-  const participants = await Participant.find().populate("campaignId");
+  const participants = await Participant.find();
   return participants;
 };
 const getParticipantById = async (id) => {
@@ -34,18 +34,18 @@ const createParticipant = async (data) => {
 
   const participantData = {
     ...data,
-    normalizedName,
+    name: normalizedName,
   };
 
-  const participate = await Participant.create(participantData);
+  const participant = await Participant.create(participantData);
 
   await Campaign.findByIdAndUpdate(
     data.campaignId,
-    { $push: { participants: participate.id } },
+    { $push: { participants: participant.id } },
     { new: true }
   );
 
-  return participate;
+  return participant;
 };
 const updateParticipant = async (id, data) => {
   const newData = await Participant.findByIdAndUpdate(id, data, {
@@ -53,7 +53,17 @@ const updateParticipant = async (id, data) => {
   });
   return newData;
 };
-const deleteParticipant = (id) => Participant.delete(id);
+
+const deleteParticipant = async (id) => {
+  const participant = await Participant.findById(id);
+
+  await Campaign.findByIdAndUpdate(participant.campaignId, {
+    $pull: { participants: id },
+  });
+
+  await participant.deleteOne();
+  return participant;
+};
 
 const getLeaderboard = () => Participant.find().sort({ points: -1 }).limit(10);
 
