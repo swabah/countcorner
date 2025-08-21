@@ -14,6 +14,10 @@ app.use(express.json());
 
 app.use("/", apiRoutes);
 
+app.get("/", (req, res) => {
+  res.json({ message: "🦄🌈✨ API Running ✨🌈🦄" });
+});
+
 app.use(errorHandler);
 
 module.exports = app;

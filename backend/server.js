@@ -5,7 +5,7 @@ const logger = require("./src/config/logger");
 
 let server;
 
-mongoose.connect(config.mongoose.url).then(() => {
+await mongoose.connect(config.mongoose.url).then(() => {
   logger.info("✅ Connected to MongoDB");
   server = app.listen(config.port, () => {
     logger.info(`🚀 Server running on port ${config.port}`);
