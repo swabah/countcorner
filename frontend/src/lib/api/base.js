@@ -2,16 +2,12 @@ import axios from "axios";
 import { toast } from "sonner";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "https://countcorner-backend.vercel.app",
   headers: { "Content-Type": "application/json" },
 });
 
 axiosInstance.interceptors.request.use(
   function (config) {
-    const token = localStorage.getItem("auth_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
   },
   function (error) {

@@ -35,7 +35,7 @@ const addCountSchema = z.object({
 
 export function AddCountForm({ className, ...props }) {
   const { CAMPAIGN_CONFIG, isDateInCampaignPeriod, formatCampaignDate } =
-    useCampaignConfig("68a5b79bc0639d434115c2a8");
+    useCampaignConfig("68a7351580cbe659c21bfcb1");
 
   const { data: Participants } = useParticipants();
 
