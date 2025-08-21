@@ -14,8 +14,6 @@ const updateParticipant = joi.object({
 });
 
 module.exports = {
-  participantValidation: {
-    createParticipant,
-    updateParticipant,
-  },
+  createParticipant,
+  updateParticipant,
 };

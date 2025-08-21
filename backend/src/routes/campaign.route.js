@@ -1,8 +1,9 @@
 const express = require("express");
-const router = express.Router();
 const validate = require("../middleware/validate");
 const { campaignController } = require("../controllers/campaign.controller");
-const { campaignValidation } = require("../validations/campaign.validation");
+const campaignValidation = require("../validations/campaign.validation");
+
+const router = express.Router();
 
 // Routes
 router.get("/", campaignController.getAllCampaigns);

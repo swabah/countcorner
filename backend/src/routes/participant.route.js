@@ -1,12 +1,11 @@
 const express = require("express");
-const router = express.Router();
 const {
   participantController,
 } = require("../controllers/participant.controller");
 const validate = require("../middleware/validate");
-const {
-  participantValidation,
-} = require("../validations/participant.validation");
+const participantValidation = require("../validations/participant.validation");
+
+const router = express.Router();
 
 router.post(
   "/",

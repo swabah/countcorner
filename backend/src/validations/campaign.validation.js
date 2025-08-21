@@ -19,8 +19,6 @@ const updateCampaign = Joi.object({
 });
 
 module.exports = {
-  campaignValidation: {
-    createCampaign,
-    updateCampaign,
-  },
+  createCampaign,
+  updateCampaign,
 };
