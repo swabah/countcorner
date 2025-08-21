@@ -1,5 +1,5 @@
-const campaignModel = require("../models/campaign.model");
-const participantModel = require("../models/participant.model");
+const Campaign = require("../models/campaign.model");
+const Participant = require("../models/participant.model");
 
 function normalizeString(str) {
   return str.replace(/\s+/g, " ").trim().toLowerCase();
@@ -7,7 +7,7 @@ function normalizeString(str) {
 
 async function isNameUnique(name, campaignId) {
   const normalizedName = normalizeString(name);
-  const existing = await participantModel.findOne({
+  const existing = await Participant.findOne({
     normalizedName,
     campaignId,
   });
@@ -15,11 +15,11 @@ async function isNameUnique(name, campaignId) {
 }
 
 const getAllParticipants = async () => {
-  const participates = await participantModel.find().populate("campaignId");
-  return participates;
+  const participants = await Participant.find().populate("campaignId");
+  return participants;
 };
 const getParticipantById = async (id) => {
-  const data = await participantModel.findById(id);
+  const data = await Participant.findById(id);
   return data;
 };
 const createParticipant = async (data) => {
@@ -37,26 +37,25 @@ const createParticipant = async (data) => {
     normalizedName,
   };
 
-  const participate = await participantModel.create(participantData);
+  const participate = await Participant.create(participantData);
 
-  await campaignModel.findByIdAndUpdate(
+  await Campaign.findByIdAndUpdate(
     data.campaignId,
-    { $push: { participates: participate.id } },
+    { $push: { participants: participate.id } },
     { new: true }
   );
 
   return participate;
 };
 const updateParticipant = async (id, data) => {
-  const newData = await participantModel.findByIdAndUpdate(id, data, {
+  const newData = await Participant.findByIdAndUpdate(id, data, {
     new: true,
   });
   return newData;
 };
-const deleteParticipant = (id) => participantModel.delete(id);
+const deleteParticipant = (id) => Participant.delete(id);
 
-const getLeaderboard = () =>
-  participantModel.find().sort({ points: -1 }).limit(10);
+const getLeaderboard = () => Participant.find().sort({ points: -1 }).limit(10);
 
 module.exports = {
   participantService: {

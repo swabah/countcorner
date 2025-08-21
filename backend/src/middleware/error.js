@@ -1,14 +1,9 @@
-export function notFound(req, res, next) {
-  res.status(404);
-  const error = new Error(`🔍 - Not Found - ${req.originalUrl}`);
-  next(error);
-}
-
-export function errorHandler(err, req, res, _next) {
-  const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
-  res.status(statusCode);
-  res.json({
-    message: err.message,
-    stack: process.env.NODE_ENV === "production" ? "🥞" : err.stack,
+const errorHandler = (err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
   });
-}
+};
+
+module.exports = { errorHandler };

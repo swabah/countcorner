@@ -7,6 +7,10 @@ const participantValidation = require("../validations/participant.validation");
 
 const router = express.Router();
 
+router.get("/", participantController.getAllparticipant);
+router.get("/leaderboard", participantController.leaderboard);
+router.get("/:id", participantController.getparticipantById);
+
 router.post(
   "/",
   validate(participantValidation.createParticipant),
@@ -17,10 +21,6 @@ router.put(
   validate(participantValidation.updateParticipant),
   participantController.updateparticipant
 );
-
-router.get("/", participantController.getAllparticipant);
-router.get("/leaderboard", participantController.leaderboard);
-router.get("/:id", participantController.getparticipantById);
 
 router.delete("/:id", participantController.deleteparticipant);
 

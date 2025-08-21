@@ -9,7 +9,7 @@ const campaignSchema = new mongoose.Schema(
     goal: Number,
     total: Number,
     isActive: Boolean,
-    participates: [
+    participants: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Participant",
@@ -19,4 +19,5 @@ const campaignSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Campaign", campaignSchema);
+const Campaign = mongoose.model("Campaign", campaignSchema);
+module.exports = Campaign;

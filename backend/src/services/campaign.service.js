@@ -1,32 +1,32 @@
-const campaignModel = require("../models/campaign.model");
+const Campaign = require("../models/campaign.model");
 
 const getAllCampaigns = () => {
-  return campaignModel.find().populate({
-    path: "participates",
+  return Campaign.find().populate({
+    path: "participants",
   });
 };
 
 const getCampaignById = (id) => {
-  const data = campaignModel.findById(id).populate({
-    path: "participates",
+  const data = Campaign.findById(id).populate({
+    path: "participants",
   });
   return data;
 };
 
 const createCampaign = async (data) => {
-  const newCampaign = await campaignModel.create(data);
+  const newCampaign = await Campaign.create(data);
   return newCampaign;
 };
 
 const updateCampaign = async (id, data) => {
-  const newData = await campaignModel.findByIdAndUpdate(id, data, {
+  const newData = await Campaign.findByIdAndUpdate(id, data, {
     new: true,
   });
   return newData;
 };
 
 const deleteCampaign = (id) => {
-  return campaignModel.findByIdAndDelete(id);
+  return Campaign.findByIdAndDelete(id);
 };
 
 module.exports = {
