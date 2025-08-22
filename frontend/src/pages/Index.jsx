@@ -21,10 +21,10 @@ const Index = () => {
         <div className="absolute inset-0 bg-black/80"></div>
         <div className="relative z-10 text-center text-white px-4 max-w-5xl mx-auto">
           <h1 className="text-3xl md:text-6xl lg:text-7xl font-bold mb-6 leading-snug">
-            {campaign.data.name}
+            {campaign?.data.name}
           </h1>
           <p className="text-lg md:text-xl lg:text-2xl mb-8 text-white/90 max-w-3xl mx-auto leading-tight">
-            {campaign.data.description}
+            {campaign?.data.description}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
