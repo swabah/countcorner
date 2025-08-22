@@ -2,7 +2,7 @@ import axios from "axios";
 import { toast } from "sonner";
 
 const axiosInstance = axios.create({
-  baseURL: "https://countcorner-backend.vercel.app",
+  baseURL: "https://countcorner.onrender.com",
   headers: { "Content-Type": "application/json" },
 });
 
