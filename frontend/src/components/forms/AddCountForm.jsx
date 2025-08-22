@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { useParticipants } from "@/features/participants";
 import { useCampaignConfig } from "@/utils/campaignUtils";
 import { useParticipantMutation } from "@/features/participants/mutations/useParticipantMutations";
+import { AutocompleteSelect } from "../ui/AutocompleteSelect";
 
 const addCountSchema = z.object({
   participantId: z.string().min(1, "Please select your name"),
@@ -56,7 +57,6 @@ export function AddCountForm({ className, ...props }) {
 
   const handleSubmit = async (data) => {
     try {
-      // Find participant object by ID
       const selectedParticipant = Participants?.data?.find(
         (p) => p._id === data.participantId
       );
@@ -74,7 +74,6 @@ export function AddCountForm({ className, ...props }) {
       });
 
       form.reset();
-      // setSelectedDate(undefined);
     } catch (error) {
       console.error("Failed to add daily count:", error);
     }
@@ -103,30 +102,18 @@ export function AddCountForm({ className, ...props }) {
         <Label htmlFor="participantId" className="text-lg font-medium">
           Your Name
         </Label>
-        <Select
-          onValueChange={handleParticipantSelect}
-          aria-label="Select participant"
-          value={form.getValues("participantId") || ""}
-        >
-          <SelectTrigger
-            id="participantId"
-            className={cn(
-              "text-lg py-3",
-              form.formState.errors.participantId &&
-                "border-destructive focus:border-destructive"
-            )}
-            aria-invalid={!!form.formState.errors.participantId}
-          >
-            <SelectValue placeholder="Select your name" />
-          </SelectTrigger>
-          <SelectContent>
-            {Participants?.data?.map(({ _id, name }) => (
-              <SelectItem key={_id} value={_id}>
-                {name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <AutocompleteSelect
+          participants={Participants?.data || []}
+          value={form.getValues("participantId")}
+          onChange={(val) =>
+            form.setValue("participantId", val, {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
+          }
+          placeholder="Select your name"
+        />
+
         {form.formState.errors.participantId && (
           <p className="text-destructive text-sm" role="alert">
             {form.formState.errors.participantId.message}
