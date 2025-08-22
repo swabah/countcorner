@@ -129,7 +129,7 @@ const Leaderboard = () => {
         </div>
 
         {/* Remaining Participants */}
-        {rest.length && (
+        {rest.length > 0 && (
           <IslamicCard gradient>
             <CardHeader>
               <CardTitle className="text-2xl text-center">
@@ -179,7 +179,7 @@ const Leaderboard = () => {
           </IslamicCard>
         )}
 
-        <div className="mt-8 text-center">
+        <div className="mt-16 text-center">
           <IslamicCard>
             <CardContent className="p-8">
               <h3 className="text-xl font-semibold mb-3">
