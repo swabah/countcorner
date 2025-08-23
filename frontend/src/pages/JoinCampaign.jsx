@@ -39,7 +39,7 @@ const JoinCampaign = () => {
                     Campaign Duration
                   </h4>
                   <p className="text-muted-foreground">
-                    August 15 - September 15, 2024
+                    August 15 - September 15, 2025
                   </p>
                 </div>
                 <div className="p-4 py-8 bg-secondary rounded-lg">
