@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useLeaderboard } from "@/features/participants";
 import { Trophy, Medal, Award, Crown } from "lucide-react";
 import { LoaderContainer } from "@/components/ui/loader";
+import PageContainer from "@/components/PageContainer";
 
 const Leaderboard = () => {
   const { data: leaderboard, isLoading } = useLeaderboard();
@@ -88,115 +89,108 @@ const Leaderboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-peaceful py-16">
-      <div className="container mx-auto px-6 max-w-5xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Community Leaderboard</h1>
-        </div>
+    <PageContainer title={"Community Leaderboard"}>
+      {/* Top 3 Podium */}
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
+        {top3.map((participant, idx) => {
+          const rank = idx + 1;
+          return (
+            <IslamicCard
+              key={participant.id || participant._id}
+              className={`text-center transform transition-all duration-300 ${getCardClassName(
+                rank
+              )}`}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex justify-center mb-2">
+                  {getRankIcon(rank)}
+                </div>
+                <Badge
+                  variant={getRankBadgeVariant(rank)}
+                  className="mx-auto mb-2"
+                >
+                  Rank #{rank}
+                </Badge>
+                <CardTitle className="text-xl">{participant.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary mb-2">
+                  {participant.countTotal}
+                </div>
+                <p className="text-sm text-muted-foreground">Total Salawat</p>
+              </CardContent>
+            </IslamicCard>
+          );
+        })}
+      </div>
 
-        {/* Top 3 Podium */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {top3.map((participant, idx) => {
-            const rank = idx + 1;
-            return (
-              <IslamicCard
-                key={participant.id || participant._id}
-                className={`text-center transform transition-all duration-300 ${getCardClassName(
-                  rank
-                )}`}
-              >
-                <CardHeader className="pb-2">
-                  <div className="flex justify-center mb-2">
-                    {getRankIcon(rank)}
-                  </div>
-                  <Badge
-                    variant={getRankBadgeVariant(rank)}
-                    className="mx-auto mb-2"
+      {/* Remaining Participants */}
+      {rest.length > 0 && (
+        <IslamicCard gradient>
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">
+              Complete Rankings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {rest.map((participant, idx) => {
+                // Overall rank = 3 + idx + 1
+                const rank = 3 + idx + 1;
+                return (
+                  <div
+                    key={participant.id || participant._id}
+                    className={`flex items-center justify-between p-4 rounded-lg transition-all duration-300 hover:shadow-peaceful ${
+                      rank <= 3
+                        ? "bg-gradient-primary/10 border border-primary/20"
+                        : "bg-secondary hover:bg-secondary/80"
+                    }`}
                   >
-                    Rank #{rank}
-                  </Badge>
-                  <CardTitle className="text-xl">{participant.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-primary mb-2">
-                    {participant.countTotal}
-                  </div>
-                  <p className="text-sm text-muted-foreground">Total Salawat</p>
-                </CardContent>
-              </IslamicCard>
-            );
-          })}
-        </div>
-
-        {/* Remaining Participants */}
-        {rest.length > 0 && (
-          <IslamicCard gradient>
-            <CardHeader>
-              <CardTitle className="text-2xl text-center">
-                Complete Rankings
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {rest.map((participant, idx) => {
-                  // Overall rank = 3 + idx + 1
-                  const rank = 3 + idx + 1;
-                  return (
-                    <div
-                      key={participant.id || participant._id}
-                      className={`flex items-center justify-between p-4 rounded-lg transition-all duration-300 hover:shadow-peaceful ${
-                        rank <= 3
-                          ? "bg-gradient-primary/10 border border-primary/20"
-                          : "bg-secondary hover:bg-secondary/80"
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2 min-w-[60px]">
-                          {getRankIcon(rank)}
-                          <span className="font-bold text-lg">#{rank}</span>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-lg">
-                            {participant.name}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            Avg: {Math.round(participant.countTotal / 30)} per
-                            day
-                          </p>
-                        </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 min-w-[60px]">
+                        {getRankIcon(rank)}
+                        <span className="font-bold text-lg">#{rank}</span>
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-primary">
-                          {participant.countTotal}
-                        </div>
-                        <p className="text-sm text-muted-foreground">Salawat</p>
+                      <div>
+                        <h3 className="font-semibold text-lg">
+                          {participant.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Avg: {Math.round(participant.countTotal / 30)} per day
+                        </p>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </IslamicCard>
-        )}
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-primary">
+                        {participant.countTotal}
+                      </div>
+                      <p className="text-sm text-muted-foreground">Salawat</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </IslamicCard>
+      )}
 
-        <div className="mt-16 text-center">
-          <IslamicCard>
-            <CardContent className="p-8">
-              <h3 className="text-xl font-semibold mb-3">
-                May Allah Accept Your Efforts
-              </h3>
-              <p className="text-muted-foreground text-md lg:text-lg leading-relaxed">
-                "And whoever does righteous deeds, whether male or female, while
-                being a believer - those will enter Paradise and will not be
-                wronged, [even as much as] the speck on a date seed."
-                <br />
-                <span className="text-sm">- Quran 4:124</span>
-              </p>
-            </CardContent>
-          </IslamicCard>
-        </div>
+      <div className="mt-16 text-center">
+        <IslamicCard>
+          <CardContent className="p-8">
+            <h3 className="text-xl font-semibold mb-3">
+              May Allah Accept Your Efforts
+            </h3>
+            <p className="text-muted-foreground text-md lg:text-lg leading-relaxed">
+              "And whoever does righteous deeds, whether male or female, while
+              being a believer - those will enter Paradise and will not be
+              wronged, [even as much as] the speck on a date seed."
+              <br />
+              <span className="text-sm">- Quran 4:124</span>
+            </p>
+          </CardContent>
+        </IslamicCard>
       </div>
-    </div>
+    </PageContainer>
   );
 };
 
