@@ -6,6 +6,7 @@ import { useLeaderboard } from "@/features/participants";
 import { Trophy, Medal, Award, Crown } from "lucide-react";
 import { LoaderContainer } from "@/components/ui/loader";
 import PageContainer from "@/components/PageContainer";
+import LeaderboardBanner from "@/components/leaderboard/LeaderboardBanner";
 
 const Leaderboard = () => {
   const { data: leaderboard, isLoading } = useLeaderboard();
@@ -45,6 +46,15 @@ const Leaderboard = () => {
   // Take top 3, then remaining
   const top3 = sortedParticipants.slice(0, 3);
   const rest = sortedParticipants.slice(3);
+
+  const totalParticipants = filteredParticipants.length;
+  const totalCount = filteredParticipants.reduce(
+    (acc, p) => acc + p.countTotal,
+    0
+  );
+
+  console.log(totalParticipants);
+  console.log(totalCount);
 
   // Rank icon helper
   const getRankIcon = (rank) => {
@@ -90,6 +100,11 @@ const Leaderboard = () => {
 
   return (
     <PageContainer title={"Community Leaderboard"}>
+      <LeaderboardBanner
+        totalParticipants={totalParticipants}
+        totalCount={totalCount}
+      />
+
       {/* Top 3 Podium */}
       <div className="grid md:grid-cols-3 gap-6 mb-8">
         {top3.map((participant, idx) => {
