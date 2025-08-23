@@ -4,10 +4,7 @@
  */
 
 // Campaign features
-export * from './campaigns';
+export * from "./campaigns";
 
 // Participant features
-export * from './participants';
-
-// Daily Count features
-export * from './daily-counts';
+export * from "./participants";

@@ -6,7 +6,6 @@ import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import StatCard from "@/components/StatCard";
 import { Users, Heart, Calendar, TrendingUp } from "lucide-react";
 import heroImage from "@/assets/islamic-hero.jpg";
-import { useCampaign } from "@/features";
 
 const Index = () => {
   return (
