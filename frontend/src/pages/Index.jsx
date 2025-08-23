@@ -9,11 +9,8 @@ import heroImage from "@/assets/islamic-hero.jpg";
 import { useCampaign } from "@/features";
 
 const Index = () => {
-  const { data: campaign } = useCampaign("68a7351580cbe659c21bfcb1");
-  console.log(campaign.data.name);
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-peaceful">
-      {/* Hero Section */}
       <div
         className="relative px-6 py-16 md:py-20 h-auto  xl:h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroImage})` }}
@@ -21,10 +18,16 @@ const Index = () => {
         <div className="absolute inset-0 bg-black/80"></div>
         <div className="relative z-10 text-center text-white px-4 max-w-5xl mx-auto">
           <h1 className="text-3xl md:text-6xl lg:text-7xl font-bold mb-6 leading-snug">
-            {campaign?.data.name}
+            30-Day Salat Upon the Prophet{" "}
+            <span className="text-4xl md:text-7xl lg:text-8xl text-accent">
+              ﷺ
+            </span>{" "}
+            Campaign
           </h1>
           <p className="text-lg md:text-xl lg:text-2xl mb-8 text-white/90 max-w-3xl mx-auto leading-tight">
-            {campaign?.data.description}
+            Join our blessed community in sending abundant Salawat upon our
+            beloved Prophet Muhammad ﷺ. Together, we achieve spiritual
+            upliftment and earn immense blessings from Allah.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
