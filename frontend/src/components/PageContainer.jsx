@@ -1,21 +1,19 @@
 import { cn } from "@/lib/utils";
 
-const PageContainer = ({ 
-  children, 
+const PageContainer = ({
+  children,
   className,
   title,
   subtitle,
-  maxWidth = "max-w-4xl",
-  ...props 
+  maxWidth = "max-w-5xl",
+  ...props
 }) => {
   return (
-    <div className="min-h-screen bg-gradient-peaceful py-16">
-      <div className={cn("container mx-auto px-4", maxWidth)}>
+    <div className="min-h-screen bg-gradient-peaceful py-12 lg:py-24">
+      <div className={cn("container mx-auto px-6", maxWidth)}>
         {(title || subtitle) && (
-          <div className="text-center mb-8">
-            {title && (
-              <h1 className="text-4xl font-bold mb-4">{title}</h1>
-            )}
+          <div className="text-center mb-12">
+            {title && <h1 className="text-4xl font-bold mb-4">{title}</h1>}
             {subtitle && (
               <p className="text-xl text-muted-foreground">{subtitle}</p>
             )}

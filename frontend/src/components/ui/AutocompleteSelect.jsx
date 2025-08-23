@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 export function AutocompleteSelect({
   participants,
@@ -105,7 +106,11 @@ export function AutocompleteSelect({
         >
           {filteredParticipants.length === 0 ? (
             <li className="p-3 text-center text-sm text-gray-500 select-none">
-              No participants available
+              You need to Join
+              <br className="md:hidden" />
+              <Link to={"/join"}>
+                <strong className="text-primary"> Join Campaign</strong>
+              </Link>
             </li>
           ) : (
             filteredParticipants.map((p, idx) => (
