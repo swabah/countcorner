@@ -19,7 +19,7 @@ const Footer = () => {
             </p>
             <div className="flex items-center gap-2 text-sm text-primary-foreground/70">
               <Calendar className="h-4 w-4" />
-              <span>Campaign Period: August 15 - September 15, 2024</span>
+              <span>Campaign Period: August 15 - September 15, 2025</span>
             </div>
           </div>
 
@@ -89,7 +89,7 @@ const Footer = () => {
         <div className="border-t border-primary-foreground/20 mt-8 pt-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-sm text-primary-foreground/70">
-              © 2024 30-Day Salat Campaign. Built with love for the Ummah.
+              © 2025 30-Day Salat Campaign. Built with love for the Ummah.
             </div>
             <div className="text-sm text-primary-foreground/70 text-center md:text-right">
               May Allah accept our efforts and multiply our rewards.

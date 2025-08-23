@@ -9,8 +9,6 @@ export const queryKeys = {
   participants: () => ["participants"],
   participant: (id) => ["participant", id],
   leaderboard: () => ["leaderboard"],
-  dailyCounts: () => ["daily-counts"],
-  dailyCount: (id) => ["daily-count", id],
 };
 
 // Common query options
