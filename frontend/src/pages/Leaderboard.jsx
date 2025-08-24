@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { IslamicCard } from "@/components/ui/islamic-card";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,12 +6,12 @@ import { useLeaderboard } from "@/features/participants";
 import { Trophy, Medal, Award, Crown } from "lucide-react";
 import { LoaderContainer } from "@/components/ui/loader";
 import PageContainer from "@/components/PageContainer";
-import LeaderboardBanner from "@/components/forms/leaderboard/LeaderboardBanner";
 
 const Leaderboard = () => {
   const { data: leaderboard, isLoading } = useLeaderboard();
+  const [activeTab, setActiveTab] = useState("ranking"); // 'ranking' or 'today'
 
-  // Defensive: If no data, show loading or empty
+  // Loading state UI
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-peaceful py-16">
@@ -34,29 +34,21 @@ const Leaderboard = () => {
     );
   }
 
-  const filteredParticipants = (leaderboard?.data || []).filter(
+  // Filter participants with countTotal > 0
+  const participants = (leaderboard?.data || []).filter(
     (p) => p.countTotal && p.countTotal > 0
   );
 
-  // Sort participants by countTotal DESCending
-  const sortedParticipants = [...filteredParticipants].sort(
+  // Sort participants descending by countTotal
+  const sortedParticipants = [...participants].sort(
     (a, b) => b.countTotal - a.countTotal
   );
 
-  // Take top 3, then remaining
+  // Top 3 podium
   const top3 = sortedParticipants.slice(0, 3);
   const rest = sortedParticipants.slice(3);
 
-  const totalParticipants = filteredParticipants.length;
-  const totalCount = filteredParticipants.reduce(
-    (acc, p) => acc + p.countTotal,
-    0
-  );
-
-  console.log(totalParticipants);
-  console.log(totalCount);
-
-  // Rank icon helper
+  // Ranking Tab UI helpers
   const getRankIcon = (rank) => {
     switch (rank) {
       case 1:
@@ -70,7 +62,6 @@ const Leaderboard = () => {
     }
   };
 
-  // Badge variant helper
   const getRankBadgeVariant = (rank) => {
     switch (rank) {
       case 1:
@@ -84,7 +75,6 @@ const Leaderboard = () => {
     }
   };
 
-  // Card style helper for top 3
   const getCardClassName = (rank) => {
     switch (rank) {
       case 1:
@@ -98,15 +88,20 @@ const Leaderboard = () => {
     }
   };
 
-  return (
-    <PageContainer title={"Community Leaderboard"}>
-      <LeaderboardBanner
-        totalParticipants={totalParticipants}
-        totalCount={totalCount}
-      />
+  // Today tab participants (assuming countToday field exists)
+  // If your data structure differs, adjust accordingly
+  const todayParticipants = (leaderboard?.data || []).filter(
+    (p) => p.countToday && p.countToday > 0
+  );
 
-      {/* Top 3 Podium */}
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
+  return (
+    <PageContainer
+      title="Community Leaderboard"
+      subtitle={
+        "Celebrating our dedicated participants in this blessed journey"
+      }
+    >
+      <div className="grid md:grid-cols-3 gap-6 mb-12">
         {top3.map((participant, idx) => {
           const rank = idx + 1;
           return (
@@ -128,7 +123,7 @@ const Leaderboard = () => {
                 </Badge>
                 <CardTitle className="text-xl">{participant.name}</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <div className="text-3xl font-bold text-primary mb-2">
                   {participant.countTotal}
                 </div>
@@ -139,54 +134,130 @@ const Leaderboard = () => {
         })}
       </div>
 
-      {/* Remaining Participants */}
-      {rest.length > 0 && (
-        <IslamicCard gradient>
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">
-              Complete Rankings
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {rest.map((participant, idx) => {
-                // Overall rank = 3 + idx + 1
-                const rank = 3 + idx + 1;
-                return (
-                  <div
-                    key={participant.id || participant._id}
-                    className={`flex items-center justify-between p-4 rounded-lg transition-all duration-300 hover:shadow-peaceful ${
-                      rank <= 3
-                        ? "bg-gradient-primary/10 border border-primary/20"
-                        : "bg-secondary hover:bg-secondary/80"
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2 min-w-[60px]">
-                        {getRankIcon(rank)}
-                        <span className="font-bold text-lg">#{rank}</span>
+      {/* Tabs */}
+      <div className="flex justify-center gap-4  pt-5 mb-8 border-b-2 border-gray-300">
+        <button
+          onClick={() => setActiveTab("ranking")}
+          className={`px-6 py-2 font-semibold rounded-t-md ${
+            activeTab === "ranking"
+              ? "bg-gray-300 text-black border-t-2 border-accent"
+              : "text-gray-500 hover:text-gray-800"
+          }`}
+        >
+          Ranking
+        </button>
+        <button
+          onClick={() => setActiveTab("today")}
+          className={`px-6 py-2 font-semibold rounded-t-md ${
+            activeTab === "today"
+              ? "bg-gray-300 text-black border-t-2 border-accent"
+              : "text-gray-500 hover:text-gray-800"
+          }`}
+        >
+          Today
+        </button>
+      </div>
+
+      {/* Tab content */}
+      {activeTab === "ranking" && (
+        <>
+          {/* Remaining participants list */}
+          {rest.length > 0 && (
+            <CardContent>
+              <div className="space-y-3">
+                {rest.map((participant, idx) => {
+                  const rank = idx + 4; // because top 3 handled separately
+                  return (
+                    <div
+                      key={participant.id || participant._id}
+                      className={`flex items-center justify-between p-4 px-6 rounded-lg transition-all duration-300 hover:shadow-peaceful ${
+                        idx < 3
+                          ? "bg-gradient-primary/10 border border-primary/20"
+                          : "bg-secondary hover:bg-secondary/80"
+                      }`}
+                    >
+                      <div className=" flex items-center gap-3">
+                        <div className="flex items-center gap-2 min-w-[60px]">
+                          {getRankIcon(rank)}
+                          <span className="font-bold text-lg">#{rank}</span>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg">
+                            {participant.name}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            Avg: {Math.round(participant.countTotal / 30)} per
+                            day
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-lg">
-                          {participant.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Avg: {Math.round(participant.countTotal / 30)} per day
-                        </p>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-primary">
+                          {participant.countTotal}
+                        </div>
+                        <p className="text-sm text-muted-foreground">Salawat</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-primary">
-                        {participant.countTotal}
+                  );
+                })}
+              </div>
+            </CardContent>
+          )}
+        </>
+      )}
+
+      {activeTab === "today" && (
+        <>
+          {todayParticipants.length === 0 && (
+            <p className="text-center text-muted-foreground">
+              No salawat recorded today yet.
+            </p>
+          )}
+          {todayParticipants.length > 0 && (
+            <CardContent>
+              <div className="space-y-3">
+                {todayParticipants
+                  .sort((a, b) => b.countToday - a.countToday)
+                  .map((participant, idx) => {
+                    const rank = 3 + idx + 1;
+                    return (
+                      <div
+                        key={participant.id || participant._id}
+                        className={`flex items-center justify-between p-4 rounded-lg transition-all duration-300 hover:shadow-peaceful ${
+                          idx < 3
+                            ? "bg-gradient-primary/10 border border-primary/20"
+                            : "bg-secondary hover:bg-secondary/80"
+                        }`}
+                      >
+                        <div className="px-2 flex items-center gap-5">
+                          <div className="flex items-center gap-2 min-w-[60px]">
+                            {getRankIcon(rank)}
+                            <span className="font-bold text-lg">#{rank}</span>
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-lg">
+                              {participant.name}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              Salawat today: {participant.countToday}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-primary">
+                            {participant.countToday}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Salawat
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">Salawat</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </IslamicCard>
+                    );
+                  })}
+              </div>
+            </CardContent>
+          )}
+        </>
       )}
 
       <div className="mt-16 text-center">
