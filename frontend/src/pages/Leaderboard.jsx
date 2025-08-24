@@ -208,54 +208,104 @@ const Leaderboard = () => {
 
       {activeTab === "today" && (
         <>
-          {todayParticipants.length === 0 && (
+          {todayParticipants.length === 0 ? (
             <p className="text-center text-muted-foreground">
               No salawat recorded today yet.
             </p>
-          )}
-          {todayParticipants.length > 0 && (
-            <CardContent>
-              <div className="space-y-3">
-                {todayParticipants
-                  .sort((a, b) => b.countToday - a.countToday)
-                  .map((participant, idx) => {
-                    const rank = 3 + idx + 1;
-                    return (
-                      <div
-                        key={participant.id || participant._id}
-                        className={`flex items-center justify-between p-4 rounded-lg transition-all duration-300 hover:shadow-peaceful ${
-                          idx < 3
-                            ? "bg-gradient-primary/10 border border-primary/20"
-                            : "bg-secondary hover:bg-secondary/80"
-                        }`}
-                      >
-                        <div className="px-2 flex items-center gap-5">
-                          <div className="flex items-center gap-2 min-w-[60px]">
-                            {getRankIcon(rank)}
-                            <span className="font-bold text-lg">#{rank}</span>
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-lg">
-                              {participant.name}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">
-                              Salawat today: {participant.countToday}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-primary">
-                            {participant.countToday}
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            Salawat
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </CardContent>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="table-auto w-full border-collapse border border-gray-200 rounded-lg">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      #
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Count
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Date & Time
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {todayParticipants
+                    .sort((a, b) => b.countToday - a.countToday)
+                    .map((participant, idx) => {
+                      // Use participant logs or timestamps if available
+                      // For demo, using current date/time as placeholder for each item
+                      const dateTime = participant.lastUpdated
+                        ? new Date(participant.lastUpdated).toLocaleString(
+                            "en-GB",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            }
+                          )
+                        : new Date().toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          });
+
+                      return (
+                        <tr
+                          key={participant.id || participant._id}
+                          className="border-b border-gray-200"
+                        >
+                          <td className="border border-gray-300 px-4 py-3">
+                            {idx + 1}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-3">
+                            <span className="inline-block px-3 py-1 text-sm font-semibold text-white bg-blue-500 rounded-full">
+                              {participant.countToday}
+                            </span>
+                          </td>
+                          <td className="border border-gray-300 px-4 py-3">
+                            {dateTime}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-3">
+                            <button
+                              type="button"
+                              className="flex items-center gap-1 px-3 py-1 text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition"
+                              onClick={() => {
+                                // Implement delete logic here
+                                alert(`Delete action for ${participant.name}`);
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                className="w-4 h-4"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
           )}
         </>
       )}

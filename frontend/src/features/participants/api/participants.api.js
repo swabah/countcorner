@@ -36,6 +36,7 @@ export const participantsApi = {
    * @returns {Promise} Updated participant
    */
   updateParticipant: (id, data) => {
+    // console.log("update participant", id, ",", data);
     axiosInstance.put(`/participants/${id}`, data);
   },
 

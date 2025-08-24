@@ -13,6 +13,7 @@ import { useParticipants } from "@/features/participants";
 import { useCampaignConfig } from "@/utils/campaignUtils";
 import { useParticipantMutation } from "@/features/participants/mutations/useParticipantMutations";
 import { AutocompleteSelect } from "../ui/AutocompleteSelect";
+import { formatDate } from "@/utils/formateDate";
 
 // ---------------- Schema ----------------
 const addCountSchema = z.object({
@@ -55,14 +56,21 @@ export function AddCountForm({ className, ...props }) {
         return;
       }
 
-      const currentCountTotal = selectedParticipant?.countTotal || 0;
-      const newCountTotal = currentCountTotal + data.count;
+      const currentContributions = selectedParticipant?.contributions || [];
+      const updatedContributions = [
+        ...currentContributions,
+        { date: formatDate(new Date()), count: data.count },
+      ];
+      const newContributedTotal = updatedContributions.reduce(
+        (acc, cur) => acc + cur.count,
+        0
+      );
 
       await updateParticipant({
         id: data.participantId,
         data: {
-          date: new Date(),
-          countTotal: newCountTotal,
+          contributions: updatedContributions,
+          totalContributed: newContributedTotal,
         },
       });
 
