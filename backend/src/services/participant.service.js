@@ -1,5 +1,6 @@
 const Campaign = require("../models/campaign.model");
 const Participant = require("../models/participant.model");
+const Contribution = require("../models/contribution.model");
 
 function normalizeString(str) {
   return str.replace(/\s+/g, " ").trim().toLowerCase();
@@ -22,7 +23,7 @@ const getParticipantById = async (id) => {
   const data = await Participant.findById(id);
   return data;
 };
-const createParticipant = async (data, res) => {
+const createParticipant = async (data) => {
   const unique = await isNameUnique(
     normalizeString(data.name),
     data.campaignId
@@ -43,11 +44,25 @@ const createParticipant = async (data, res) => {
 
   return participant;
 };
-const updateParticipant = async (id, data) => {
-  const newData = await Participant.findByIdAndUpdate(id, data, {
-    new: true,
+const updateParticipant = async (id, updateData) => {
+  console.log(updateData)
+  const { totalContributed, contributions } = updateData;
+
+  const contribution = await Contribution.create({
+    ...contributions,
+    participantId: id,
   });
-  return newData;
+
+  const updatedParticipant = await Participant.findByIdAndUpdate(
+    id,
+    {
+      totalContributed: totalContributed,
+      $push: { contributions: contribution.id },
+    },
+    { new: true, runValidators: true }
+  );
+
+  return updatedParticipant;
 };
 
 const deleteParticipant = async (id) => {
