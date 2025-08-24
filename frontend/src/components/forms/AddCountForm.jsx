@@ -6,21 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon, Plus } from "lucide-react";
-import { format } from "date-fns";
+import { Plus, CheckCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { useParticipants } from "@/features/participants";
@@ -28,29 +14,32 @@ import { useCampaignConfig } from "@/utils/campaignUtils";
 import { useParticipantMutation } from "@/features/participants/mutations/useParticipantMutations";
 import { AutocompleteSelect } from "../ui/AutocompleteSelect";
 
+// ---------------- Schema ----------------
 const addCountSchema = z.object({
   participantId: z.string().min(1, "Please select your name"),
-  count: z.number().positive().min(1).max(10000),
-  date: z.date(),
+
+  count: z
+    .number({
+      invalid_type_error: "Please enter a count",
+    })
+    .min(1, "Please add your count")
+    .max(100000, "Count must be less than 10,0000"),
 });
 
+// ---------------- Component ----------------
 export function AddCountForm({ className, ...props }) {
-  const { CAMPAIGN_CONFIG, isDateInCampaignPeriod, formatCampaignDate } =
-    useCampaignConfig("68a7351580cbe659c21bfcb1");
+  const { CAMPAIGN_CONFIG } = useCampaignConfig("68a7351580cbe659c21bfcb1");
 
   const { data: Participants } = useParticipants();
-
   const { updateParticipant, isUpdating } = useParticipantMutation();
 
-  const [selectedDate, setSelectedDate] = useState(undefined);
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [feedback, setFeedback] = useState({ type: null, message: "" });
 
   const form = useForm({
     resolver: zodResolver(addCountSchema),
     defaultValues: {
       participantId: "",
       count: "",
-      date: undefined,
     },
     mode: "onChange",
   });
@@ -61,35 +50,42 @@ export function AddCountForm({ className, ...props }) {
         (p) => p._id === data.participantId
       );
 
-      const currentCountTotal = selectedParticipant?.countTotal || 0;
+      if (!selectedParticipant) {
+        setFeedback({ type: "error", message: "Participant not found." });
+        return;
+      }
 
+      const currentCountTotal = selectedParticipant?.countTotal || 0;
       const newCountTotal = currentCountTotal + data.count;
 
       await updateParticipant({
         id: data.participantId,
         data: {
+          date: new Date(),
           countTotal: newCountTotal,
-          date: data.date,
         },
       });
 
       form.reset();
+      setFeedback({
+        type: "success",
+        message: "You submitted your salah count successfully!",
+      });
+
+      // Hide success after 5 seconds
+      setTimeout(() => setFeedback({ type: null, message: "" }), 5000);
     } catch (error) {
       console.error("Failed to add daily count:", error);
+
+      if (error?.response?.status === 404) {
+        setFeedback({ type: "error", message: "Participant not found." });
+      } else {
+        setFeedback({
+          type: "error",
+          message: "Failed to submit count. Please try again later.",
+        });
+      }
     }
-  };
-
-  const handleDateSelect = (date) => {
-    setSelectedDate(date);
-    form.setValue("date", date, { shouldValidate: true, shouldDirty: true });
-    setPopoverOpen(false);
-  };
-
-  const handleParticipantSelect = (participantId) => {
-    form.setValue("participantId", participantId, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
   };
 
   return (
@@ -98,6 +94,7 @@ export function AddCountForm({ className, ...props }) {
       className={cn("space-y-6", className)}
       {...props}
     >
+      {/* Participant Select */}
       <div className="space-y-2">
         <Label htmlFor="participantId" className="text-lg font-medium">
           Your Name
@@ -121,67 +118,10 @@ export function AddCountForm({ className, ...props }) {
         )}
       </div>
 
-      {/* Date selection */}
-      <div className="space-y-2">
-        <Label htmlFor="date" className="text-lg font-medium">
-          Date
-        </Label>
-        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              id="date"
-              type="button"
-              variant="outline"
-              className={cn(
-                "w-full justify-start text-left font-normal text-lg py-3",
-                !selectedDate && "text-muted-foreground",
-                form.formState.errors.date &&
-                  "border-destructive focus:border-destructive"
-              )}
-              aria-label={
-                selectedDate
-                  ? `Selected date: ${format(selectedDate, "PPP")}`
-                  : "Pick a date"
-              }
-              onClick={() => setPopoverOpen(true)}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" aria-hidden="true" />
-              {selectedDate ? (
-                format(selectedDate, "PPP")
-              ) : (
-                <span>Pick a date</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="start" className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={handleDateSelect}
-              disabled={(date) => !isDateInCampaignPeriod(date)}
-              defaultMonth={CAMPAIGN_CONFIG.START_DATE}
-              fromDate={CAMPAIGN_CONFIG.START_DATE}
-              toDate={CAMPAIGN_CONFIG.END_DATE}
-              initialFocus
-              className="pointer-events-auto"
-            />
-            <div className="p-3 text-xs text-muted-foreground border-t">
-              Valid dates: {formatCampaignDate(CAMPAIGN_CONFIG.START_DATE)} to{" "}
-              {formatCampaignDate(CAMPAIGN_CONFIG.END_DATE)}
-            </div>
-          </PopoverContent>
-        </Popover>
-        {form.formState.errors.date && (
-          <p className="text-destructive text-sm" role="alert">
-            {form.formState.errors.date.message}
-          </p>
-        )}
-      </div>
-
       {/* Count input */}
       <div className="space-y-2">
         <Label htmlFor="count" className="text-lg font-medium">
-          Number of Salawat
+          Number of Salawath
         </Label>
         <Input
           id="count"
@@ -193,12 +133,6 @@ export function AddCountForm({ className, ...props }) {
             form.formState.errors.count &&
               "border-destructive focus:border-destructive"
           )}
-          min={1}
-          max={10000}
-          aria-invalid={!!form.formState.errors.count}
-          aria-describedby={
-            form.formState.errors.count ? "count-error" : "count-help"
-          }
         />
         <div id="count-help" className="text-xs text-muted-foreground">
           Enter a number between 1 and 10,000
@@ -222,6 +156,21 @@ export function AddCountForm({ className, ...props }) {
         <Plus className="mr-2 h-5 w-5" aria-hidden="true" />
         {isUpdating ? "Submitting..." : "Submit Count"}
       </Button>
+
+      {/* Feedback messages */}
+      {feedback.type === "success" && (
+        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center space-x-2 text-green-800">
+          <CheckCircle className="h-5 w-5 text-green-600" />
+          <span className="font-medium">{feedback.message}</span>
+        </div>
+      )}
+
+      {feedback.type === "error" && (
+        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-2 text-red-800">
+          <AlertCircle className="h-5 w-5 text-red-600" />
+          <span className="font-medium">{feedback.message}</span>
+        </div>
+      )}
     </form>
   );
 }

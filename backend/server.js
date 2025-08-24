@@ -1,23 +1,29 @@
+console.log("Starting server.js...");
+
+const mongoose = require("mongoose");
 const app = require("./app");
 const config = require("./src/config/config");
-const connectDB = require("./src/config/db");
-const logger = require("./src/config/logger");
+
+let server;
 
 const startServer = async () => {
   try {
-    await connectDB();
-    app.listen(config.port, () => {
-      logger.info(`🚀 Server running at http://localhost:${config.port}`);
+    console.log("Connecting to MongoDB...");
+    await mongoose.connect(config.mongoose.url);
+    console.log("✅ Connected to MongoDB");
+
+    server = app.listen(config.port, () => {
+      console.log(`✅ Listening to port http://localhost:${config.port}`);
     });
-  } catch (err) {
-    logger.error("❌ Failed to start server:", err);
+  } catch (error) {
+    console.error("❌ MongoDB connection failed:", error);
     process.exit(1);
   }
 };
 
 startServer();
 
-const exitHandler = () => {
+const gracefulShutdown = () => {
   if (server) {
     server.close(() => {
       logger.info("❌ Server closed");
@@ -28,15 +34,20 @@ const exitHandler = () => {
   }
 };
 
-const unexpectedErrorHandler = (error) => {
-  logger.error(error);
-  exitHandler();
-};
-
-process.on("uncaughtException", unexpectedErrorHandler);
-process.on("unhandledRejection", unexpectedErrorHandler);
-
 process.on("SIGTERM", () => {
   logger.info("👋 SIGTERM received");
-  if (server) server.close();
+  gracefulShutdown();
+});
+process.on("SIGINT", () => {
+  logger.info("👋 SIGINT received");
+  gracefulShutdown();
+});
+
+process.on("uncaughtException", (err) => {
+  logger.error("Uncaught Exception:", err);
+  gracefulShutdown();
+});
+process.on("unhandledRejection", (reason) => {
+  logger.error("Unhandled Rejection at Promise:", reason);
+  gracefulShutdown();
 });
