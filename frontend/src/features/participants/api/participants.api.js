@@ -25,7 +25,6 @@ export const participantsApi = {
    * @returns {Promise} Created participant
    */
   createParticipant: async (data) => {
-    console.log(data);
     const response = await axiosInstance.post("/participants", data);
     return response.data;
   },
@@ -37,8 +36,7 @@ export const participantsApi = {
    * @returns {Promise} Updated participant
    */
   updateParticipant: (id, data) => {
-    console.log(id, data);
-    // axiosInstance.put(`/participants/${id}`, data),
+    axiosInstance.put(`/participants/${id}`, data);
   },
 
   /**
