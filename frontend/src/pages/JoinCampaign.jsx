@@ -5,11 +5,34 @@ import { JoinCampaignForm } from "@/components/forms/JoinCampaignForm";
 import { Heart, UserPlus } from "lucide-react";
 import PageContainer from "@/components/PageContainer";
 import { useCampaignConfig } from "@/utils/campaignUtils";
+import { useCampaign } from "@/features";
+import { LoaderContainer } from "@/components/ui/loader";
 
 const JoinCampaign = () => {
-  const { CAMPAIGN_CONFIG, formatCampaignDate } = useCampaignConfig(
-    "68a7351580cbe659c21bfcb1"
-  );
+  const { data: campaign, isLoading } = useCampaign("68a7351580cbe659c21bfcb1");
+  const campaignId = campaign?.data._id;
+  
+  const { CAMPAIGN_CONFIG, formatCampaignDate } = useCampaignConfig(campaignId);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-peaceful py-16">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-4">Register Your Participation</h1>
+          </div>
+          <LoaderContainer
+            isLoading
+            loadingText="Loading Campaign Data..."
+            size="lg"
+            variant="accent"
+            className="min-h-[400px]"
+          />
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <PageContainer title={"Join the Blessed Campaign"}>
       <IslamicCard gradient className="mb-6 mt-12 p-6 md:p-8">
@@ -20,7 +43,7 @@ const JoinCampaign = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <JoinCampaignForm />
+          <JoinCampaignForm campaignId={campaignId} />
         </CardContent>
       </IslamicCard>
 

@@ -22,22 +22,18 @@ const getParticipantById = async (id) => {
   const data = await Participant.findById(id);
   return data;
 };
-const createParticipant = async (data) => {
-  const unique = await isNameUnique(data.name, data.campaignId);
+const createParticipant = async (data, res) => {
+  const unique = await isNameUnique(
+    normalizeString(data.name),
+    data.campaignId
+  );
   if (!unique) {
     throw new Error(
       "Participant name must be unique per campaign (case and space insensitive)"
     );
   }
 
-  const normalizedName = normalizeString(data.name);
-
-  const participantData = {
-    ...data,
-    name: normalizedName,
-  };
-
-  const participant = await Participant.create(participantData);
+  const participant = await Participant.create(data);
 
   await Campaign.findByIdAndUpdate(
     data.campaignId,

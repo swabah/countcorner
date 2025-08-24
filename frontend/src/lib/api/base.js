@@ -20,9 +20,14 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   function (error) {
-    const errorMessage =
-      error.response?.data?.message || error.message || "Something went wrong";
-    toast.error(errorMessage);
+    // Don't show toast for 400 errors (validation errors) - let forms handle them
+    if (error.response?.status !== 400) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Something went wrong";
+      toast.error(errorMessage);
+    }
     return Promise.reject(error);
   }
 );

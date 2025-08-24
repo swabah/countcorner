@@ -24,6 +24,9 @@ export const useParticipantMutation = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.leaderboard() });
       toast.success("Welcome! You've successfully joined the campaign!");
     },
+    onError: (err) => {
+      toast.error("You have already joined this campaign.!");
+    },
   });
 
   const updateParticipantMutation = useMutation({

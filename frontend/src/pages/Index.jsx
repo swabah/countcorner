@@ -10,7 +10,6 @@ import heroImage from "@/assets/islamic-hero.jpg";
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-peaceful">
-      {/* Hero Section */}
       <div
         className="relative px-6 py-16 md:py-20 h-auto  xl:h-screen w-full flex items-center justify-center bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroImage})` }}
