@@ -15,7 +15,7 @@ const getparticipantById = catchAsync(async (req, res) => {
 });
 
 const createparticipant = catchAsync(async (req, res) => {
-  const participant = await participantService.createParticipant(req.body);
+  const participant = await participantService.createParticipant(req.body, res);
   res.status(201).send(participant);
 });
 
@@ -25,7 +25,7 @@ const updateparticipant = catchAsync(async (req, res) => {
     req.body
   );
   if (!updated) return res.status(404).json({ message: "Not found" });
-  res.json(updated);
+  res.send(updated);
 });
 
 const deleteparticipant = catchAsync(async (req, res) => {
