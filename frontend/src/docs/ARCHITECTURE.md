@@ -31,7 +31,6 @@ This project implements industrial-standard frontend architecture using React Qu
 src/hooks/query/
 ├── useCampaigns.js    # Campaign-related operations
 ├── useParticipants.js # Participant CRUD operations
-├── useDailyCounts.js  # Daily count management
 └── index.js           # Centralized exports
 ```
 
@@ -103,11 +102,11 @@ export const useCreateParticipant = () => {
       // Optimistic update
       await queryClient.cancelQueries({ queryKey: queryKeys.participants() });
       const previousData = queryClient.getQueryData(queryKeys.participants());
-      
-      queryClient.setQueryData(queryKeys.participants(), (old) => 
+
+      queryClient.setQueryData(queryKeys.participants(), (old) =>
         old ? [...old, { ...newParticipant, id: 'temp' }] : [newParticipant]
       );
-      
+
       return { previousData };
     },
     onSuccess: (data) => {
@@ -180,13 +179,13 @@ describe('useCreateParticipant', () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false }, mutations: { retry: false } }
     });
-    
+
     const wrapper = ({ children }) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );
 
     const { result } = renderHook(() => useCreateParticipant(), { wrapper });
-    
+
     act(() => {
       result.current.mutate({ name: 'Test User' });
     });
@@ -207,13 +206,13 @@ import { JoinCampaignForm } from '@/components/forms/JoinCampaignForm';
 describe('JoinCampaignForm', () => {
   it('should validate and submit form', async () => {
     render(<JoinCampaignForm />);
-    
+
     const nameInput = screen.getByLabelText(/your name/i);
     const submitButton = screen.getByRole('button', { name: /join campaign/i });
-    
+
     fireEvent.change(nameInput, { target: { value: 'Test User' } });
     fireEvent.click(submitButton);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/joining.../i)).toBeInTheDocument();
     });
