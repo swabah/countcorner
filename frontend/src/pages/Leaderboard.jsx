@@ -6,7 +6,7 @@ import { useLeaderboard } from "@/features/participants";
 import { Trophy, Medal, Award, Crown } from "lucide-react";
 import { LoaderContainer } from "@/components/ui/loader";
 import PageContainer from "@/components/PageContainer";
-import LeaderboardBanner from "@/components/leaderboard/LeaderboardBanner";
+import LeaderboardBanner from "@/components/forms/leaderboard/LeaderboardBanner";
 
 const Leaderboard = () => {
   const { data: leaderboard, isLoading } = useLeaderboard();
