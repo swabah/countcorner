@@ -4,14 +4,15 @@ import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { JoinCampaignForm } from "@/components/forms/JoinCampaignForm";
 import { Heart, UserPlus } from "lucide-react";
 import PageContainer from "@/components/PageContainer";
+import { useCampaignConfig } from "@/utils/campaignUtils";
 import { useCampaign } from "@/features";
-import { useNavigate } from "react-router-dom";
 import { LoaderContainer } from "@/components/ui/loader";
 
 const JoinCampaign = () => {
   const { data: campaign, isLoading } = useCampaign("68a7351580cbe659c21bfcb1");
   const campaignId = campaign?.data._id;
-  const navigate = useNavigate();
+  
+  const { CAMPAIGN_CONFIG, formatCampaignDate } = useCampaignConfig(campaignId);
 
   if (isLoading) {
     return (
@@ -31,7 +32,7 @@ const JoinCampaign = () => {
       </div>
     );
   }
-
+  
   return (
     <PageContainer title={"Join the Blessed Campaign"}>
       <IslamicCard gradient className="mb-6 mt-12 p-6 md:p-8">
@@ -61,7 +62,8 @@ const JoinCampaign = () => {
                   Campaign Duration
                 </h4>
                 <p className="text-muted-foreground">
-                  August 15 - September 15, 2025
+                  {formatCampaignDate(CAMPAIGN_CONFIG.START_DATE)} -{" "}
+                  {formatCampaignDate(CAMPAIGN_CONFIG.END_DATE)}
                 </p>
               </div>
               <div className="p-4 py-8 bg-secondary rounded-lg">

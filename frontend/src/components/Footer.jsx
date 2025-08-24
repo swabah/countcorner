@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
 import { Star, Heart, Calendar, Users } from "lucide-react";
+import { useCampaignConfig } from "@/utils/campaignUtils";
 
 const Footer = () => {
+  const { CAMPAIGN_CONFIG, formatCampaignDate } = useCampaignConfig(
+    "68a7351580cbe659c21bfcb1"
+  );
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto max-w-5xl px-6 py-12">
@@ -19,7 +23,8 @@ const Footer = () => {
             </p>
             <div className="flex items-center gap-2 text-sm text-primary-foreground/70">
               <Calendar className="h-4 w-4" />
-              <span>Campaign Period: August 15 - September 15, 2025</span>
+              {formatCampaignDate(CAMPAIGN_CONFIG.START_DATE)} -{" "}
+              {formatCampaignDate(CAMPAIGN_CONFIG.END_DATE)}
             </div>
           </div>
 
