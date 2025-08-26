@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 export function AutocompleteSelect({
   participants,
   value,
   onChange,
-  placeholder,
+  placeholder = "Type your name (min 2 chars)",
 }) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +13,7 @@ export function AutocompleteSelect({
 
   const containerRef = useRef(null);
 
-  // Filter participants only if user typed at least 2 characters
+  // Filter participants only when query length >= 2
   const filteredParticipants =
     query.length >= 2
       ? participants.filter((p) =>
@@ -23,7 +23,7 @@ export function AutocompleteSelect({
 
   // Close dropdown on outside click
   useEffect(() => {
-    function onClickOutside(event) {
+    function handleClickOutside(event) {
       if (
         containerRef.current &&
         !containerRef.current.contains(event.target)
@@ -32,56 +32,80 @@ export function AutocompleteSelect({
         setHighlightedIndex(-1);
       }
     }
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Keyboard navigation & selection
-  const onKeyDown = (e) => {
-    if (!isOpen) {
-      if (e.key === "ArrowDown" && filteredParticipants.length > 0) {
+  // Set query text based on external value changes
+  useEffect(() => {
+    const selected = participants.find((p) => p._id === value);
+    setQuery(selected ? selected.name : "");
+  }, [value, participants]);
+
+  const handleInputChange = useCallback(
+    (e) => {
+      setQuery(e.target.value);
+      setIsOpen(e.target.value.length >= 2);
+      onChange(""); // Clear current selection when typing (keep type as string)
+    },
+    [onChange]
+  );
+
+  const selectParticipant = useCallback(
+    (participant, event) => {
+      event.preventDefault();
+      setQuery(participant.name);
+      onChange(participant._id);
+      setIsOpen(false);
+      setHighlightedIndex(-1);
+    },
+    [onChange]
+  );
+
+  const onKeyDown = useCallback(
+    (e) => {
+      if (!isOpen && e.key === "ArrowDown" && filteredParticipants.length) {
         setIsOpen(true);
         setHighlightedIndex(0);
+        return;
       }
-      return;
-    }
-    if (e.key === "ArrowDown") {
-      setHighlightedIndex((i) => (i + 1) % filteredParticipants.length);
-    } else if (e.key === "ArrowUp") {
-      setHighlightedIndex(
-        (i) =>
-          (i - 1 + filteredParticipants.length) % filteredParticipants.length
-      );
-    } else if (e.key === "Enter" && highlightedIndex >= 0) {
-      const selected = filteredParticipants[highlightedIndex];
-      onChange(selected._id);
-      setQuery(selected.name);
-      setIsOpen(false);
-      setHighlightedIndex(-1);
-      e.preventDefault();
-    } else if (e.key === "Escape") {
-      setIsOpen(false);
-      setHighlightedIndex(-1);
-    }
-  };
 
-  // Set query based on external value change (e.g., reset)
-  useEffect(() => {
-    const selectedParticipant = participants.find((p) => p._id === value);
-    setQuery(selectedParticipant ? selectedParticipant.name : "");
-  }, [value, participants]);
+      if (!isOpen) return;
+
+      switch (e.key) {
+        case "ArrowDown":
+          setHighlightedIndex((i) => (i + 1) % filteredParticipants.length);
+          break;
+        case "ArrowUp":
+          setHighlightedIndex(
+            (i) =>
+              (i - 1 + filteredParticipants.length) %
+              filteredParticipants.length
+          );
+          break;
+        case "Enter":
+          if (highlightedIndex >= 0) {
+            selectParticipant(filteredParticipants[highlightedIndex], e);
+          }
+          break;
+        case "Escape":
+          setIsOpen(false);
+          setHighlightedIndex(-1);
+          break;
+        default:
+          break;
+      }
+    },
+    [filteredParticipants, highlightedIndex, isOpen, selectParticipant]
+  );
 
   return (
     <div ref={containerRef} className="relative w-full">
       <input
         type="text"
         value={query}
-        placeholder={placeholder || "Type your name (min 2 chars)"}
-        onChange={(e) => {
-          setQuery(e.target.value);
-          setIsOpen(true);
-          onChange(null); // clear selection on typing
-        }}
+        placeholder={placeholder}
+        onChange={handleInputChange}
         onFocus={() => query.length >= 2 && setIsOpen(true)}
         onKeyDown={onKeyDown}
         className="w-full rounded border border-gray-300 px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -106,9 +130,9 @@ export function AutocompleteSelect({
         >
           {filteredParticipants.length === 0 ? (
             <li className="p-3 text-center text-sm text-gray-500 select-none">
-              You need to Join
+              You need to join
               <br className="md:hidden" />
-              <Link to={"/join"}>
+              <Link to="/join">
                 <strong className="text-primary"> Join Campaign</strong>
               </Link>
             </li>
@@ -119,12 +143,7 @@ export function AutocompleteSelect({
                 id={`autocomplete-item-${idx}`}
                 role="option"
                 aria-selected={highlightedIndex === idx}
-                onMouseDown={() => {
-                  onChange(p._id);
-                  setQuery(p.name);
-                  setIsOpen(false);
-                  setHighlightedIndex(-1);
-                }}
+                onMouseDown={(e) => selectParticipant(p, e)}
                 className={`cursor-pointer px-4 py-2 select-none ${
                   highlightedIndex === idx
                     ? "bg-blue-600 text-white"

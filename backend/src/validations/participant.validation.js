@@ -1,17 +1,28 @@
-const joi = require("joi");
+const Joi = require("joi");
+const { objectId } = require("./custom.validation");
 
-const createParticipant = joi.object({
-  name: joi.string().required(),
-  campaignId: joi.string().required(),
-  countTotal: joi.number().optional(),
-});
+const createParticipant = {
+  body: Joi.object().keys({
+    name: Joi.string().required(),
+    campaignId: Joi.string().custom(objectId).required(),
+  }),
+};
 
-const updateParticipant = joi.object({
-  name: joi.string().optional(),
-  campaignId: joi.string().optional(),
-  countTotal: joi.number().optional(),
-  date: joi.date(),
-});
+const updateParticipant = {
+  body: Joi.object().keys({
+    name: Joi.string().optional(),
+    campaignId: Joi.string().custom(objectId).optional(),
+    totalContributed: Joi.number().min(0).optional(),
+    contributions: Joi.array()
+      .items(
+        Joi.object().keys({
+          count: Joi.number().min(0).optional(),
+          date: Joi.date().optional(),
+        })
+      )
+      .optional(),
+  }),
+};
 
 module.exports = {
   createParticipant,
