@@ -4,7 +4,7 @@ import { useCampaignConfig } from "@/utils/campaignUtils";
 
 const Footer = () => {
   const { CAMPAIGN_CONFIG, formatCampaignDate } = useCampaignConfig(
-    "68a7351580cbe659c21bfcb1"
+    "68adf95caa90e57547aacad9"
   );
   return (
     <footer className="bg-primary text-primary-foreground">
