@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { LoaderContainer } from "@/components/ui/loader";
 
 const JoinCampaign = () => {
-  const { data: campaign, isLoading } = useCampaign("68abe8f3712a5f6b47ded8a1");
+  const { data: campaign, isLoading } = useCampaign("68adf95caa90e57547aacad9");
   const campaignId = campaign?.data._id;
   const navigate = useNavigate();
 

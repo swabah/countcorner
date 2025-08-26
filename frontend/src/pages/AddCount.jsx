@@ -12,7 +12,7 @@ const AddCount = () => {
     isDateInCampaignPeriod,
     formatCampaignDate,
     loading,
-  } = useCampaignConfig("68abe8f3712a5f6b47ded8a1"); // Use campaignId as needed
+  } = useCampaignConfig("68adf95caa90e57547aacad9"); // Use campaignId as needed
 
   // Show loading message or fallback UI while data loads
   if (loading || !CAMPAIGN_CONFIG.START_DATE || !CAMPAIGN_CONFIG.END_DATE) {

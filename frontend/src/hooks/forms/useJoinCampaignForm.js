@@ -31,7 +31,7 @@ const joinCampaignSchema = z.object({
 export const useJoinCampaignForm = () => {
   const navigate = useNavigate();
   const { createParticipantAsync, isCreating } = useParticipantMutation();
-  const { data: campaign } = useCampaign("68abe8f3712a5f6b47ded8a1");
+  const { data: campaign } = useCampaign("68adf95caa90e57547aacad9");
 
   const campaignId = campaign?.data._id;
 

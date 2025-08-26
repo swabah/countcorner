@@ -15,7 +15,7 @@ import {
 
 const Leaderboard = () => {
   const { data: leaderboard, isLoading } = useLeaderboard();
-  const [activeTab, setActiveTab] = useState("ranking"); // 'ranking' or 'today'
+  const [activeTab, setActiveTab] = useState("today"); // 'ranking' or 'today'
 
   // Loading state UI
   if (isLoading) {
@@ -76,7 +76,11 @@ const Leaderboard = () => {
       <TopPodium top3={top3} />
 
       {/* Tab Navigation */}
-      <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+      <TabNavigation
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        rest={rest}
+      />
 
       {/* Tab Content */}
       {activeTab === "ranking" && <RestRankings rest={rest} />}
