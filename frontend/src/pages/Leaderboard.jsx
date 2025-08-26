@@ -1,17 +1,23 @@
-import React from "react";
-import { IslamicCard } from "@/components/ui/islamic-card";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import React, { useState } from "react";
 import { useLeaderboard } from "@/features/participants";
-import { Trophy, Medal, Award, Crown } from "lucide-react";
 import { LoaderContainer } from "@/components/ui/loader";
 import PageContainer from "@/components/PageContainer";
-import LeaderboardBanner from "@/components/forms/leaderboard/LeaderboardBanner";
+
+// Import components
+import {
+  SummaryCards,
+  TopPodium,
+  TabNavigation,
+  RestRankings,
+  TodaysTab,
+  LeaderboardFooter,
+} from "@/components/leaderboard";
 
 const Leaderboard = () => {
   const { data: leaderboard, isLoading } = useLeaderboard();
+  const [activeTab, setActiveTab] = useState("today"); // 'ranking' or 'today'
 
-  // Defensive: If no data, show loading or empty
+  // Loading state UI
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-peaceful py-16">
@@ -34,177 +40,60 @@ const Leaderboard = () => {
     );
   }
 
-  const filteredParticipants = (leaderboard?.data || []).filter(
-    (p) => p.countTotal && p.countTotal > 0
+  // Filter participants with totalContributed > 0
+  const participants = (leaderboard?.data || []).filter(
+    (p) => p.totalContributed && p.totalContributed > 0
   );
 
-  // Sort participants by countTotal DESCending
-  const sortedParticipants = [...filteredParticipants].sort(
-    (a, b) => b.countTotal - a.countTotal
+  // Sort participants descending by totalContributed
+  const sortedParticipants = [...participants].sort(
+    (a, b) => b.totalContributed - a.totalContributed
   );
 
-  // Take top 3, then remaining
+  // Top 3 podium
   const top3 = sortedParticipants.slice(0, 3);
   const rest = sortedParticipants.slice(3);
 
-  const totalParticipants = filteredParticipants.length;
-  const totalCount = filteredParticipants.reduce(
-    (acc, p) => acc + p.countTotal,
+  // Today tab participants: use countToday from backend
+  const todayParticipants = (leaderboard?.data || [])
+    .filter((p) => p.countToday && p.countToday > 0)
+    .sort((a, b) => b.countToday - a.countToday);
+
+  const totalTodayCount = todayParticipants.reduce(
+    (sum, p) => sum + (Number(p.countToday) || 0),
     0
   );
 
-  console.log(totalParticipants);
-  console.log(totalCount);
-
-  // Rank icon helper
-  const getRankIcon = (rank) => {
-    switch (rank) {
-      case 1:
-        return <Crown className="h-6 w-6 text-accent" />;
-      case 2:
-        return <Trophy className="h-6 w-6 text-primary-glow" />;
-      case 3:
-        return <Medal className="h-6 w-6 text-accent-light" />;
-      default:
-        return <Award className="h-5 w-5 text-muted-foreground" />;
-    }
-  };
-
-  // Badge variant helper
-  const getRankBadgeVariant = (rank) => {
-    switch (rank) {
-      case 1:
-        return "default";
-      case 2:
-        return "secondary";
-      case 3:
-        return "outline";
-      default:
-        return "outline";
-    }
-  };
-
-  // Card style helper for top 3
-  const getCardClassName = (rank) => {
-    switch (rank) {
-      case 1:
-        return "border-accent shadow-gold bg-gradient-gold/5";
-      case 2:
-        return "border-primary-glow shadow-peaceful bg-gradient-primary/5";
-      case 3:
-        return "border-accent-light shadow-peaceful bg-gradient-peaceful";
-      default:
-        return "";
-    }
-  };
-
   return (
-    <PageContainer title={"Community Leaderboard"}>
-      <LeaderboardBanner
-        totalParticipants={totalParticipants}
-        totalCount={totalCount}
-      />
+    <PageContainer
+      title="Community Leaderboard"
+      subtitle="Celebrating our dedicated participants in this blessed journey"
+    >
+      {/* Summary Cards */}
+      <SummaryCards participants={participants} />
 
       {/* Top 3 Podium */}
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
-        {top3.map((participant, idx) => {
-          const rank = idx + 1;
-          return (
-            <IslamicCard
-              key={participant.id || participant._id}
-              className={`text-center transform transition-all duration-300 ${getCardClassName(
-                rank
-              )}`}
-            >
-              <CardHeader className="pb-2">
-                <div className="flex justify-center mb-2">
-                  {getRankIcon(rank)}
-                </div>
-                <Badge
-                  variant={getRankBadgeVariant(rank)}
-                  className="mx-auto mb-2"
-                >
-                  Rank #{rank}
-                </Badge>
-                <CardTitle className="text-xl">{participant.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-primary mb-2">
-                  {participant.countTotal}
-                </div>
-                <p className="text-sm text-muted-foreground">Total Salawat</p>
-              </CardContent>
-            </IslamicCard>
-          );
-        })}
-      </div>
+      <TopPodium top3={top3} />
 
-      {/* Remaining Participants */}
-      {rest.length > 0 && (
-        <IslamicCard gradient>
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">
-              Complete Rankings
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {rest.map((participant, idx) => {
-                // Overall rank = 3 + idx + 1
-                const rank = 3 + idx + 1;
-                return (
-                  <div
-                    key={participant.id || participant._id}
-                    className={`flex items-center justify-between p-4 rounded-lg transition-all duration-300 hover:shadow-peaceful ${
-                      rank <= 3
-                        ? "bg-gradient-primary/10 border border-primary/20"
-                        : "bg-secondary hover:bg-secondary/80"
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2 min-w-[60px]">
-                        {getRankIcon(rank)}
-                        <span className="font-bold text-lg">#{rank}</span>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-lg">
-                          {participant.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Avg: {Math.round(participant.countTotal / 30)} per day
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-primary">
-                        {participant.countTotal}
-                      </div>
-                      <p className="text-sm text-muted-foreground">Salawat</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </IslamicCard>
+      {/* Tab Navigation */}
+      <TabNavigation
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        rest={rest}
+      />
+
+      {/* Tab Content */}
+      {activeTab === "ranking" && <RestRankings rest={rest} />}
+      {activeTab === "today" && (
+        <TodaysTab
+          isLoading={isLoading}
+          todayParticipants={todayParticipants}
+          totalTodayCount={totalTodayCount}
+        />
       )}
 
-      <div className="mt-16 text-center">
-        <IslamicCard>
-          <CardContent className="p-8">
-            <h3 className="text-xl font-semibold mb-3">
-              May Allah Accept Your Efforts
-            </h3>
-            <p className="text-muted-foreground text-md lg:text-lg leading-relaxed">
-              "And whoever does righteous deeds, whether male or female, while
-              being a believer - those will enter Paradise and will not be
-              wronged, [even as much as] the speck on a date seed."
-              <br />
-              <span className="text-sm">- Quran 4:124</span>
-            </p>
-          </CardContent>
-        </IslamicCard>
-      </div>
+      {/* Footer */}
+      <LeaderboardFooter />
     </PageContainer>
   );
 };

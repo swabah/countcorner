@@ -5,7 +5,6 @@
 export const queryKeys = {
   campaigns: () => ["campaigns"],
   campaign: (id) => ["campaign", id],
-  campaignStats: (id) => ["campaign-stats", id],
   participants: () => ["participants"],
   participant: (id) => ["participant", id],
   leaderboard: () => ["leaderboard"],
