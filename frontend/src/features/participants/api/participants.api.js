@@ -35,9 +35,9 @@ export const participantsApi = {
    * @param {Object} data - Updated participant data
    * @returns {Promise} Updated participant
    */
-  updateParticipant: (id, data) => {
-    // console.log("update participant", id, ",", data);
-    axiosInstance.put(`/participants/${id}`, data);
+  updateParticipant: async (id, data) => {
+    const response = await axiosInstance.put(`/participants/${id}`, data);
+    return response.data;
   },
 
   /**

@@ -9,7 +9,6 @@ const contributionSchema = new mongoose.Schema(
     count: {
       type: Number,
       required: true,
-      min: 0,
     },
     participantId: {
       type: mongoose.Schema.Types.ObjectId,

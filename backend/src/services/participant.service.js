@@ -16,7 +16,9 @@ async function isNameUnique(name, campaignId) {
 }
 
 const getAllParticipants = async () => {
-  const participants = await Participant.find();
+  const participants = await Participant.find().populate({
+    path: "contributions",
+  });
   return participants;
 };
 const getParticipantById = async (id) => {
@@ -45,22 +47,34 @@ const createParticipant = async (data) => {
   return participant;
 };
 const updateParticipant = async (id, updateData) => {
-  console.log(updateData)
-  const { totalContributed, contributions } = updateData;
+  console.log(updateData);
+  if (updateData.contributions) {
+    const contributionDocs = updateData.contributions.map((contribution) => ({
+      ...contribution,
+      participantId: id,
+    }));
+    const updatedContribution = await Contribution.create(contributionDocs);
 
-  const contribution = await Contribution.create({
-    ...contributions,
-    participantId: id,
-  });
+    updateData.contributions = updatedContribution.map((c) => c._id);
+  }
+
+  console.log("updateDContribution:", updateData.contributions);
 
   const updatedParticipant = await Participant.findByIdAndUpdate(
     id,
     {
-      totalContributed: totalContributed,
-      $push: { contributions: contribution.id },
+      $push: { contributions: { $each: updateData.contributions } },
     },
-    { new: true, runValidators: true }
-  );
+    {
+      new: true,
+      runValidators: true,
+    }
+  ).populate("contributions");
+
+  updatedParticipant.totalContributed = updateData.totalContributed;
+  await updatedParticipant.save();
+
+  console.log("updatedParticipant:", updatedParticipant);
 
   return updatedParticipant;
 };
@@ -76,7 +90,39 @@ const deleteParticipant = async (id) => {
   return participant;
 };
 
-const getLeaderboard = () => Participant.find().sort({ points: -1 }).limit(10);
+const getLeaderboard = async () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const participants = await Participant.find()
+    .populate({
+      path: "contributions",
+      select: "date count",
+    })
+    .sort({ totalContributed: -1 });
+
+  // Calculate today's count for each participant
+  const participantsWithTodayCount = participants.map((participant) => {
+    const todayContributions = participant.contributions.filter(
+      (contribution) => {
+        const contributionDate = new Date(contribution.date);
+        contributionDate.setHours(0, 0, 0, 0);
+        return contributionDate.getTime() === today.getTime();
+      }
+    );
+
+    const countToday = todayContributions.reduce((sum, contribution) => {
+      return sum + (Number(contribution.count) || 0);
+    }, 0);
+
+    return {
+      ...participant.toObject(),
+      countToday,
+    };
+  });
+
+  return participantsWithTodayCount;
+};
 
 module.exports = {
   participantService: {
@@ -84,7 +130,6 @@ module.exports = {
     getAllParticipants,
     getParticipantById,
     updateParticipant,
-    createParticipant,
     deleteParticipant,
     getLeaderboard,
   },

@@ -19,8 +19,13 @@ export const useParticipantMutation = () => {
   const createParticipantMutation = useMutation({
     mutationFn: participantsApi.createParticipant,
     onSuccess: (newParticipant) => {
-      console.log("newParticipant:", newParticipant);
-      queryClient.invalidateQueries({ queryKey: queryKeys.participants() });
+      // Update participants list cache (Axios response shape with .data)
+      queryClient.setQueryData(queryKeys.participants(), (prev) => {
+        if (!prev) return { data: [newParticipant] };
+        return { ...prev, data: [newParticipant, ...(prev.data || [])] };
+      });
+
+      // Leaderboard typically recomputed on server; invalidate to refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.leaderboard() });
       toast.success("Welcome! You've successfully joined the campaign!");
     },
@@ -31,11 +36,61 @@ export const useParticipantMutation = () => {
 
   const updateParticipantMutation = useMutation({
     mutationFn: ({ id, data }) => participantsApi.updateParticipant(id, data),
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.participants() });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.participant(variables.id),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.participants() });
+      await queryClient.cancelQueries({ queryKey: queryKeys.participant(id) });
+
+      const previousParticipants = queryClient.getQueryData(
+        queryKeys.participants()
+      );
+      const previousParticipant = queryClient.getQueryData(
+        queryKeys.participant(id)
+      );
+
+      // Optimistically update participants list (Axios response with .data)
+      queryClient.setQueryData(queryKeys.participants(), (prev) => {
+        if (!prev || !prev.data) return prev;
+        return {
+          ...prev,
+          data: prev.data.map((p) => (p._id === id ? { ...p, ...data } : p)),
+        };
       });
+
+      // Optimistically update single participant cache if present
+      queryClient.setQueryData(queryKeys.participant(id), (prev) =>
+        prev ? { ...prev, ...data } : prev
+      );
+
+      return { previousParticipants, previousParticipant };
+    },
+    onError: (_err, { id }, context) => {
+      if (context?.previousParticipants) {
+        queryClient.setQueryData(
+          queryKeys.participants(),
+          context.previousParticipants
+        );
+      }
+      if (context?.previousParticipant) {
+        queryClient.setQueryData(
+          queryKeys.participant(id),
+          context.previousParticipant
+        );
+      }
+      toast.error("Failed to update participant");
+    },
+    onSuccess: (updated, variables) => {
+      const id = variables.id;
+      // Ensure caches reflect server response
+      if (updated) {
+        queryClient.setQueryData(queryKeys.participants(), (prev) => {
+          if (!prev || !prev.data) return prev;
+          return {
+            ...prev,
+            data: prev.data.map((p) => (p._id === id ? updated : p)),
+          };
+        });
+        queryClient.setQueryData(queryKeys.participant(id), updated);
+      }
       queryClient.invalidateQueries({ queryKey: queryKeys.leaderboard() });
       toast.success("Participant updated successfully!");
     },
@@ -43,8 +98,31 @@ export const useParticipantMutation = () => {
 
   const deleteParticipantMutation = useMutation({
     mutationFn: participantsApi.deleteParticipant,
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.participants() });
+
+      const previousParticipants = queryClient.getQueryData(
+        queryKeys.participants()
+      );
+
+      // Optimistic remove from list
+      queryClient.setQueryData(queryKeys.participants(), (prev) => {
+        if (!prev || !prev.data) return prev;
+        return { ...prev, data: prev.data.filter((p) => p._id !== id) };
+      });
+
+      return { previousParticipants };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previousParticipants) {
+        queryClient.setQueryData(
+          queryKeys.participants(),
+          context.previousParticipants
+        );
+      }
+      toast.error("Failed to remove participant");
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.participants() });
       queryClient.invalidateQueries({ queryKey: queryKeys.leaderboard() });
       toast.success("Participant removed successfully!");
     },

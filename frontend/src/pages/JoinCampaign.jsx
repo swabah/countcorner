@@ -9,16 +9,20 @@ import { useNavigate } from "react-router-dom";
 import { LoaderContainer } from "@/components/ui/loader";
 
 const JoinCampaign = () => {
-  const { data: campaign, isLoading } = useCampaign("68a7351580cbe659c21bfcb1");
+  const { data: campaign, isLoading } = useCampaign("68abe8f3712a5f6b47ded8a1");
   const campaignId = campaign?.data._id;
   const navigate = useNavigate();
+
+  console.log("campaign data", campaign);
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-peaceful py-16">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">Register Your Participation</h1>
+            <h1 className="text-4xl font-bold mb-4">
+              Register Your Participation
+            </h1>
           </div>
           <LoaderContainer
             isLoading

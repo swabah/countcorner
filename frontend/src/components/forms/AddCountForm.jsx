@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
@@ -10,7 +10,6 @@ import { Plus, CheckCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { useParticipants } from "@/features/participants";
-import { useCampaignConfig } from "@/utils/campaignUtils";
 import { useParticipantMutation } from "@/features/participants/mutations/useParticipantMutations";
 import { AutocompleteSelect } from "../ui/AutocompleteSelect";
 import { formatDate } from "@/utils/formateDate";
@@ -29,8 +28,6 @@ const addCountSchema = z.object({
 
 // ---------------- Component ----------------
 export function AddCountForm({ className, ...props }) {
-  const { CAMPAIGN_CONFIG } = useCampaignConfig("68a7351580cbe659c21bfcb1");
-
   const { data: Participants } = useParticipants();
   const { updateParticipant, isUpdating } = useParticipantMutation();
 
@@ -45,10 +42,12 @@ export function AddCountForm({ className, ...props }) {
     mode: "onChange",
   });
 
+  console.log(Participants?.data);
+
   const handleSubmit = async (data) => {
     try {
       const selectedParticipant = Participants?.data?.find(
-        (p) => p._id === data.participantId
+        (p) => p._id === data?.participantId
       );
 
       if (!selectedParticipant) {
@@ -56,31 +55,29 @@ export function AddCountForm({ className, ...props }) {
         return;
       }
 
-      const currentContributions = selectedParticipant?.contributions || [];
-      const updatedContributions = [
-        ...currentContributions,
-        { date: formatDate(new Date()), count: data.count },
-      ];
-      const newContributedTotal = updatedContributions.reduce(
-        (acc, cur) => acc + cur.count,
+      const sumCounts = selectedParticipant.contributions.reduce(
+        (sum, contribution) => sum + contribution.count,
         0
       );
+
+      const updatedContribution = [
+        { date: formatDate(new Date()), count: data.count },
+      ];
 
       await updateParticipant({
         id: data.participantId,
         data: {
-          contributions: updatedContributions,
-          totalContributed: newContributedTotal,
+          contributions: updatedContribution,
+          totalContributed: sumCounts + data.count,
         },
       });
 
-      form.reset();
+      // form.reset();
       setFeedback({
         type: "success",
         message: "You submitted your salah count successfully!",
       });
 
-      // Hide success after 5 seconds
       setTimeout(() => setFeedback({ type: null, message: "" }), 5000);
     } catch (error) {
       console.error("Failed to add daily count:", error);
@@ -107,16 +104,17 @@ export function AddCountForm({ className, ...props }) {
         <Label htmlFor="participantId" className="text-lg font-medium">
           Your Name
         </Label>
-        <AutocompleteSelect
-          participants={Participants?.data || []}
-          value={form.getValues("participantId")}
-          onChange={(val) =>
-            form.setValue("participantId", val, {
-              shouldValidate: true,
-              shouldDirty: true,
-            })
-          }
-          placeholder="Select your name"
+        <Controller
+          name="participantId"
+          control={form.control}
+          render={({ field }) => (
+            <AutocompleteSelect
+              participants={Participants?.data || []}
+              value={field.value}
+              onChange={(val) => field.onChange(val)}
+              placeholder="Select your name"
+            />
+          )}
         />
 
         {form.formState.errors.participantId && (

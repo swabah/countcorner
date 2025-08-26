@@ -1,0 +1,41 @@
+/* Leaderboard Component Styles */
+
+/* Hide scrollbar for cleaner look */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+/* Smooth scrolling for tab navigation */
+.overflow-x-auto {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced hover effects for tabs */
+.tab-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.tab-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Responsive table improvements */
+@media (max-width: 768px) {
+  .table-container {
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .mobile-card {
+    transition: all 0.2s ease-in-out;
+  }
+
+  .mobile-card:hover {
+    transform: translateX(2px);
+  }
+}
